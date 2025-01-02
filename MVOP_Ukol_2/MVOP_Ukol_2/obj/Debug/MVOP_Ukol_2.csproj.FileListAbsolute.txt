@@ -1,0 +1,7 @@
+C:\Users\pepam\Downloads\MVOP_Ukol_2\MVOP_Ukol_2\MVOP_Ukol_2\bin\Debug\MVOP_Ukol_1.exe.config
+C:\Users\pepam\Downloads\MVOP_Ukol_2\MVOP_Ukol_2\MVOP_Ukol_2\bin\Debug\MVOP_Ukol_1.exe
+C:\Users\pepam\Downloads\MVOP_Ukol_2\MVOP_Ukol_2\MVOP_Ukol_2\bin\Debug\MVOP_Ukol_1.pdb
+C:\Users\pepam\Downloads\MVOP_Ukol_2\MVOP_Ukol_2\MVOP_Ukol_2\obj\Debug\MVOP_Ukol_2.csproj.AssemblyReference.cache
+C:\Users\pepam\Downloads\MVOP_Ukol_2\MVOP_Ukol_2\MVOP_Ukol_2\obj\Debug\MVOP_Ukol_2.csproj.CoreCompileInputs.cache
+C:\Users\pepam\Downloads\MVOP_Ukol_2\MVOP_Ukol_2\MVOP_Ukol_2\obj\Debug\MVOP_Ukol_1.exe
+C:\Users\pepam\Downloads\MVOP_Ukol_2\MVOP_Ukol_2\MVOP_Ukol_2\obj\Debug\MVOP_Ukol_1.pdb
