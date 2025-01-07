@@ -298,44 +298,49 @@ namespace MVOP_Ukol_2
 
 
 
-        //This strategy should shoot randomly, but when it hits a ship, it should be shooting (hunting) near that hit untill it sinks a ship.
-        public class NoDuplicateRandomHuntingStrategy : PlayerStrategy
+    //This strategy should shoot randomly, but when it hits a ship, it should be shooting (hunting) near that hit untill it sinks a ship.
+    public class NoDuplicateRandomHuntingStrategy : PlayerStrategy
+    {
+
+        public override void Initialize()
+        {
+            isTargetMode = false;
+
+        }
+
+        public override void MakeAMove(Map map)
         {
 
-            public override void Initialize()
-            {
-                isTargetMode = false;
-                
-            }
+            hasShot = false;
+            int y, x;
 
-            public override void MakeAMove(Map map)
+            if (!isTargetMode)
             {
-                int y, x;
-                hasShot = false;
 
-                if (!isTargetMode)
+                do
                 {
-                    do
-                    {
-                        x = rng.Next(0, map.size);
-                        y = rng.Next(0, map.size);
-                    }
-                    while (map.Look(y, x) != Tile.unknown);
-
-                    map.Shoot(y, x);
-
-                    if (map.Look(y, x) == Tile.hit)
-                    {
-                        isTargetMode = true;
-                        lastHit = (y, x);
-                        next_targets = TargetMode(map, lastHit.Value.y, lastHit.Value.x);
-                    }
-                    
+                    x = rng.Next(0, map.size);
+                    y = rng.Next(0, map.size);
                 }
-            Console.WriteLine("target mode: " + isTargetMode);
-            Console.WriteLine(map);
-            Console.WriteLine();
-            Console.ReadKey();
+                while (map.Look(y, x) != Tile.unknown);
+
+                map.Shoot(y, x);
+                hasShot = true;
+
+
+
+                if (map.Look(y, x) == Tile.hit)
+                {
+                    isTargetMode = true;
+                    lastHit = (y, x);
+                    next_targets = TargetMode(map, lastHit.Value.y, lastHit.Value.x);
+                }
+
+            }
+            //Console.WriteLine("target mode: " + isTargetMode);
+            //Console.WriteLine(map);
+            //Console.WriteLine();
+            //Console.ReadKey();
 
             if (isTargetMode && lastHit.HasValue && !hasShot)
             {
@@ -344,7 +349,7 @@ namespace MVOP_Ukol_2
                 Console.WriteLine("next_targets: " + next_targets.Count);
                 Console.WriteLine(next_targets[0].Item1 + " " + next_targets[0].Item2);
 
-                Result result = map.Shoot(next_targets[0].Item1, next_targets[0].Item2);
+                map.Shoot(next_targets[0].Item1, next_targets[0].Item2);
 
 
                 // pokud trefim, pridat dalsi do next_targets
@@ -372,53 +377,138 @@ namespace MVOP_Ukol_2
 
     }
 
-        //This strategy should shoot sequentially from top left to bottom, but only every other tile and when it hits a ship, it should be shooting (hunting) near that hit untill it sinks a ship.
-        public class DitheredHuntingStrategy : PlayerStrategy
+    //This strategy should shoot sequentially from top left to bottom, but only every other tile and when it hits a ship, it should be shooting (hunting) near that hit untill it sinks a ship.
+    public class DitheredHuntingStrategy : PlayerStrategy
+    {
+        private int y;
+        private int x;
+
+        public override void Initialize()
         {
-
-            public override void Initialize()
-            {
-                //todo:
-            }
-
-            public override void MakeAMove(Map map)
-            {
-                //todo:
-            }
-
-
-
+            y = 0;
+            x = 0;
+            isTargetMode = false;
         }
 
-        //This strategy should consider the probability of any ship being at every tile of the map. Then pick the one with the highest probability and hunt the ship if it hits something.
-        public class WeightedHuntingStrategy : PlayerStrategy
+        public override void MakeAMove(Map map)
+        {
+            hasShot = false;
+
+            if (!isTargetMode)
+            {
+                while (map.Look(y, x) != Tile.unknown)
+                {
+                    MoveToNextPosition(map);
+                }
+
+
+                if (map.Look(y, x) == Tile.unknown)
+                {
+                    map.Shoot(y, x);
+                    hasShot = true;
+
+                    if (map.Look(y, x) == Tile.hit)
+                    {
+                        isTargetMode = true;
+                        lastHit = (y, x);
+                        next_targets = TargetMode(map, lastHit.Value.y, lastHit.Value.x);
+                    }
+                    MoveToNextPosition(map);
+                }
+            }
+            //Console.WriteLine("target mode: " + isTargetMode);
+            
+            //Console.WriteLine(map);
+            //Console.WriteLine();
+            //Console.ReadKey();
+
+            if (isTargetMode && lastHit.HasValue && !hasShot)
+            {
+                // list sousednich policek ktere neznam
+
+                //Console.WriteLine("next_targets: " + next_targets.Count);
+                //Console.WriteLine(next_targets[0].Item1 + " " + next_targets[0].Item2);
+
+                map.Shoot(next_targets[0].Item1, next_targets[0].Item2);
+
+
+                // pokud trefim, pridat dalsi do next_targets
+                if (map.Look(next_targets[0].Item1, next_targets[0].Item2) == Tile.hit)
+                {
+                    next_targets.AddRange(TargetMode(map, next_targets[0].Item1, next_targets[0].Item2));
+                }
+                next_targets.RemoveAt(0);
+
+                if (next_targets.Count == 0)
+                {
+                    isTargetMode = false;
+                }
+
+
+                //if ((int)result > 2)
+                //{
+                //    next_targets.Clear();
+                //    isTargetMode = false;
+                //}
+
+            }
+        }
+        private void MoveToNextPosition(Map map)
         {
 
-            public override void Initialize()
+            if (x >= map.size - 2)
             {
-                //todo:
+                if (y % 2 == 0)
+                {
+                    x = 1;
+                }
+                else
+                {
+                    x = 0;                    
+                }
+                y++;
             }
-            public override void MakeAMove(Map map)
+            else
             {
-                //todo:
+                
+                    x += 2;
+                
             }
         }
 
-        //Do whatever 
-        public class CustomStrategy : PlayerStrategy
-        {
 
-            public override void Initialize()
-            {
-                //todo:
-            }
-            public override void MakeAMove(Map map)
-            {
-                //todo:
-            }
-        }
 
     }
+
+    //This strategy should consider the probability of any ship being at every tile of the map. Then pick the one with the highest probability and hunt the ship if it hits something.
+    public class WeightedHuntingStrategy : PlayerStrategy
+    {
+
+        public override void Initialize()
+        {
+            //todo:
+        }
+        public override void MakeAMove(Map map)
+        {
+            //todo:
+        }
+    }
+
+    //Do whatever 
+    public class CustomStrategy : PlayerStrategy
+    {
+
+        public override void Initialize()
+        {
+            //todo:
+        }
+        public override void MakeAMove(Map map)
+        {
+            //todo:
+        }
+    }
+
+}
 
 
 

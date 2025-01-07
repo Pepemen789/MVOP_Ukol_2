@@ -19,7 +19,7 @@ namespace MVOP_Ukol_2 {
             
              new LinearHuntingStrategy(),             // 2 body
              new NoDuplicateRandomHuntingStrategy(),  // 2 body
-             //new DitheredHuntingStrategy(),           // 2 body
+             new DitheredHuntingStrategy(),           // 2 body
              
              //new WeightedHuntingStrategy(),            // 3 body
              //new CustomStrategy()                     // 1 až 3 body podle náročnosti na implementaci a úspěšnosti na počet tahů
