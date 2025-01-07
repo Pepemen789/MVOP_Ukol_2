@@ -11,18 +11,18 @@ namespace MVOP_Ukol_2 {
             Player player = new Player();
 
             //remove the comments below to test your strategies.
-            PlayerStrategy[] strategies = { 
-             //new ExampleStrategy(),                   // 0 bodů
-             /*new RandomStrategy(),*/                    // 2 body
+            PlayerStrategy[] strategies = {
+             new ExampleStrategy(),                   // 0 bodů
+             new RandomStrategy(),                    // 2 body
              new NoDuplicateRandomStrategy(),         // 2 body
-            // new LinearStrategy(),                    // 2 body
+             new LinearStrategy(),                    // 2 body
             
-            // new LinearHuntingStrategy(),             // 2 body
-            // new NoDuplicateRandomHuntingStrategy(),  // 2 body
-            // new DitheredHuntingStrategy(),           // 2 body
+             new LinearHuntingStrategy(),             // 2 body
+             new NoDuplicateRandomHuntingStrategy(),  // 2 body
+             //new DitheredHuntingStrategy(),           // 2 body
              
-            // new WeightedHuntingStrategy()            // 3 body
-            // new CustomStrategy()                     // 1 až 3 body podle náročnosti na implementaci a úspěšnosti na počet tahů
+             //new WeightedHuntingStrategy(),            // 3 body
+             //new CustomStrategy()                     // 1 až 3 body podle náročnosti na implementaci a úspěšnosti na počet tahů
             };
             float[] strategyResults = new float[strategies.Length];
             int gameCount = 300;
