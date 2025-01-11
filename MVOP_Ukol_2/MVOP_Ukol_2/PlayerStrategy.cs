@@ -16,17 +16,13 @@ namespace MVOP_Ukol_2
     {
         public abstract void Initialize();
         public abstract void MakeAMove(Map map);
-
+        public int y;
+        public int x;
         protected static Random rng = new Random();
-
         protected (int y, int x)? lastHit = null;
-
         public bool isTargetMode;
-
         public List<(int, int)> next_targets = new List<(int, int)>();
-
         public bool hasShot;
-
         public List<(int, int)> TargetMode(Map map, int lastX, int lastY)
         {
             List<(int y, int x)> validDirections = new List<(int, int)>();
@@ -49,6 +45,79 @@ namespace MVOP_Ukol_2
             }
             return validDirections;
         }
+        public void TargetMode2(Map map)
+        {
+            // list sousednich policek ktere neznam
+
+            //Console.WriteLine("next_targets: " + next_targets.Count);
+            //Console.WriteLine(next_targets[0].Item1 + " " + next_targets[0].Item2);
+
+            Result result = map.Shoot(next_targets[0].Item1, next_targets[0].Item2);
+
+
+            // pokud trefim, pridat dalsi do next_targets
+            if (map.Look(next_targets[0].Item1, next_targets[0].Item2) == Tile.hit)
+            {
+                next_targets.AddRange(TargetMode(map, next_targets[0].Item1, next_targets[0].Item2));
+            }
+            next_targets.RemoveAt(0);
+
+            if (next_targets.Count == 0)
+            {
+                isTargetMode = false;
+            }
+        }
+        public (int y, int x) GetRandomCoordinates(Map map)
+        {
+            x = rng.Next(0, map.size);
+            y = rng.Next(0, map.size);
+            return (y, x);
+        }
+        public void MoveToNextPosition(Map map)
+        {
+
+            if (x >= map.size - 1)
+            {
+                x = 0;
+                y++;
+            }
+            else
+            {
+                x++;
+            }
+        }
+        public void DitheredMoveToNextPosition(Map map)
+        {
+
+            if (x >= map.size - 2)
+            {
+                if (y % 2 == 0)
+                {
+                    x = 1;
+                }
+                else
+                {
+                    x = 0;
+                }
+                y++;
+            }
+            else
+            {
+
+                x += 2;
+
+            }
+        }
+        public void TargetModeOn(Map map)
+        {
+            if (map.Look(y, x) == Tile.hit)
+            {
+                isTargetMode = true;
+                lastHit = (y, x);
+                next_targets = TargetMode(map, lastHit.Value.y, lastHit.Value.x);
+            }
+        }
+
 
 
 
@@ -114,8 +183,7 @@ namespace MVOP_Ukol_2
         public override void MakeAMove(Map map)
         {
 
-            int x = rng.Next(0, map.size);
-            int y = rng.Next(0, map.size);
+            GetRandomCoordinates(map);
 
             map.Shoot(y, x);
         }
@@ -133,12 +201,9 @@ namespace MVOP_Ukol_2
         public override void MakeAMove(Map map)
         {
 
-            int x, y;
-
             do
             {
-                x = rng.Next(0, map.size);
-                y = rng.Next(0, map.size);
+                GetRandomCoordinates(map);
             }
             while (map.Look(y, x) != Tile.unknown);
 
@@ -152,8 +217,6 @@ namespace MVOP_Ukol_2
     //This strategy should sequentially shoot at every tile starting (for example) at the top left corner, going to the right and then the next row.
     public class LinearStrategy : PlayerStrategy
     {
-        private int x;
-        private int y;
 
 
         public override void Initialize()
@@ -170,36 +233,16 @@ namespace MVOP_Ukol_2
             MoveToNextPosition(map);
         }
 
-        private void MoveToNextPosition(Map map)
-        {
 
-            if (x >= map.size - 1)
-            {
-                x = 0;
-                y++;
-            }
-            else
-            {
-                x++;
-            }
-        }
     }
 
     //This strategy should shoot sequentially from top left to bottom, but when it hits a ship, it should be shooting (hunting) near that hit untill it sinks a ship.
     public class LinearHuntingStrategy : PlayerStrategy
     {
-        private int currentX;
-        private int currentY;
-
-
-
-
-
-
         public override void Initialize()
         {
-            currentX = 0;
-            currentY = 0;
+            x = 0;
+            y = 0;
             isTargetMode = false;
         }
 
@@ -210,57 +253,24 @@ namespace MVOP_Ukol_2
             // search mode
             if (!isTargetMode)
             {
-                while (map.Look(currentY, currentX) != Tile.unknown)
+                while (map.Look(y, x) != Tile.unknown)
                 {
                     MoveToNextPosition(map);
                 }
 
 
-                if (map.Look(currentY, currentX) == Tile.unknown)
+                if (map.Look(y, x) == Tile.unknown)
                 {
-                    map.Shoot(currentY, currentX);
+                    map.Shoot(y, x);
                     hasShot = true;
 
-                    if (map.Look(currentY, currentX) == Tile.hit)
-                    {
-                        isTargetMode = true;
-                        lastHit = (currentY, currentX);
-                        next_targets = TargetMode(map, lastHit.Value.y, lastHit.Value.x);
-                    }
-                    MoveToNextPosition(map);
+                    TargetModeOn(map);
                 }
-
-
             }
             // target mode
             if (isTargetMode && lastHit.HasValue && !hasShot)
             {
-                // list sousednich policek ktere neznam
-
-                //Console.WriteLine("next_targets: " + next_targets.Count);
-                //Console.WriteLine(next_targets[0].Item1 + " " + next_targets[0].Item2);
-
-                Result result = map.Shoot(next_targets[0].Item1, next_targets[0].Item2);
-
-
-                // pokud trefim, pridat dalsi do next_targets
-                if (map.Look(next_targets[0].Item1, next_targets[0].Item2) == Tile.hit)
-                {
-                    next_targets.AddRange(TargetMode(map, next_targets[0].Item1, next_targets[0].Item2));
-                }
-                next_targets.RemoveAt(0);
-
-                if (next_targets.Count == 0)
-                {
-                    isTargetMode = false;
-                }
-
-
-                //if ((int)result > 2)
-                //{
-                //    next_targets.Clear();
-                //    isTargetMode = false;
-                //}
+                TargetMode2(map);
 
             }
 
@@ -275,25 +285,14 @@ namespace MVOP_Ukol_2
             //{
             //    Console.WriteLine("target: " + y + " " + x);
             //}
-            //Console.WriteLine(currentY + " " + currentX);
+            //Console.WriteLine(y + " " + x);
             // Console.WriteLine(map);
             // Console.WriteLine();
             //Console.ReadKey();
         }
 
-        private void MoveToNextPosition(Map map)
-        {
-            if (currentX >= map.size - 1)
-            {
-                currentX = 0;
-                currentY++;
-            }
-            else
-            {
-                currentX++;
-            }
+        
 
-        }
     }
 
 
@@ -312,15 +311,13 @@ namespace MVOP_Ukol_2
         {
 
             hasShot = false;
-            int y, x;
 
             if (!isTargetMode)
             {
 
                 do
                 {
-                    x = rng.Next(0, map.size);
-                    y = rng.Next(0, map.size);
+                    GetRandomCoordinates(map);
                 }
                 while (map.Look(y, x) != Tile.unknown);
 
@@ -329,12 +326,7 @@ namespace MVOP_Ukol_2
 
 
 
-                if (map.Look(y, x) == Tile.hit)
-                {
-                    isTargetMode = true;
-                    lastHit = (y, x);
-                    next_targets = TargetMode(map, lastHit.Value.y, lastHit.Value.x);
-                }
+                TargetModeOn(map);
 
             }
             //Console.WriteLine("target mode: " + isTargetMode);
@@ -346,8 +338,8 @@ namespace MVOP_Ukol_2
             {
                 // list sousednich policek ktere neznam
 
-                Console.WriteLine("next_targets: " + next_targets.Count);
-                Console.WriteLine(next_targets[0].Item1 + " " + next_targets[0].Item2);
+                //Console.WriteLine("next_targets: " + next_targets.Count);
+                //Console.WriteLine(next_targets[0].Item1 + " " + next_targets[0].Item2);
 
                 map.Shoot(next_targets[0].Item1, next_targets[0].Item2);
 
@@ -380,9 +372,6 @@ namespace MVOP_Ukol_2
     //This strategy should shoot sequentially from top left to bottom, but only every other tile and when it hits a ship, it should be shooting (hunting) near that hit untill it sinks a ship.
     public class DitheredHuntingStrategy : PlayerStrategy
     {
-        private int y;
-        private int x;
-
         public override void Initialize()
         {
             y = 0;
@@ -398,7 +387,7 @@ namespace MVOP_Ukol_2
             {
                 while (map.Look(y, x) != Tile.unknown)
                 {
-                    MoveToNextPosition(map);
+                    DitheredMoveToNextPosition(map);
                 }
 
 
@@ -407,17 +396,12 @@ namespace MVOP_Ukol_2
                     map.Shoot(y, x);
                     hasShot = true;
 
-                    if (map.Look(y, x) == Tile.hit)
-                    {
-                        isTargetMode = true;
-                        lastHit = (y, x);
-                        next_targets = TargetMode(map, lastHit.Value.y, lastHit.Value.x);
-                    }
+                    TargetModeOn(map);
                     MoveToNextPosition(map);
                 }
             }
             //Console.WriteLine("target mode: " + isTargetMode);
-            
+
             //Console.WriteLine(map);
             //Console.WriteLine();
             //Console.ReadKey();
@@ -453,28 +437,7 @@ namespace MVOP_Ukol_2
 
             }
         }
-        private void MoveToNextPosition(Map map)
-        {
-
-            if (x >= map.size - 2)
-            {
-                if (y % 2 == 0)
-                {
-                    x = 1;
-                }
-                else
-                {
-                    x = 0;                    
-                }
-                y++;
-            }
-            else
-            {
-                
-                    x += 2;
-                
-            }
-        }
+        
 
 
 
