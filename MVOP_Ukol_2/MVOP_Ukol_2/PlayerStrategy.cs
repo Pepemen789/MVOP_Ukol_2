@@ -66,6 +66,10 @@ namespace MVOP_Ukol_2
             {
                 isTargetMode = false;
             }
+            Console.WriteLine(y + " " + x);
+            Console.WriteLine(map);
+            Console.WriteLine();
+            Console.ReadKey();
         }
         public (int y, int x) GetRandomCoordinates(Map map)
         {
@@ -314,7 +318,6 @@ namespace MVOP_Ukol_2
 
             if (!isTargetMode)
             {
-
                 do
                 {
                     GetRandomCoordinates(map);
@@ -336,33 +339,7 @@ namespace MVOP_Ukol_2
 
             if (isTargetMode && lastHit.HasValue && !hasShot)
             {
-                // list sousednich policek ktere neznam
-
-                //Console.WriteLine("next_targets: " + next_targets.Count);
-                //Console.WriteLine(next_targets[0].Item1 + " " + next_targets[0].Item2);
-
-                map.Shoot(next_targets[0].Item1, next_targets[0].Item2);
-
-
-                // pokud trefim, pridat dalsi do next_targets
-                if (map.Look(next_targets[0].Item1, next_targets[0].Item2) == Tile.hit)
-                {
-                    next_targets.AddRange(TargetMode(map, next_targets[0].Item1, next_targets[0].Item2));
-                }
-                next_targets.RemoveAt(0);
-
-                if (next_targets.Count == 0)
-                {
-                    isTargetMode = false;
-                }
-
-
-                //if ((int)result > 2)
-                //{
-                //    next_targets.Clear();
-                //    isTargetMode = false;
-                //}
-
+                TargetMode2(map);
             }
         }
 
@@ -397,7 +374,7 @@ namespace MVOP_Ukol_2
                     hasShot = true;
 
                     TargetModeOn(map);
-                    MoveToNextPosition(map);
+                    DitheredMoveToNextPosition(map);
                 }
             }
             //Console.WriteLine("target mode: " + isTargetMode);
@@ -408,32 +385,8 @@ namespace MVOP_Ukol_2
 
             if (isTargetMode && lastHit.HasValue && !hasShot)
             {
-                // list sousednich policek ktere neznam
+                TargetMode2(map);
 
-                //Console.WriteLine("next_targets: " + next_targets.Count);
-                //Console.WriteLine(next_targets[0].Item1 + " " + next_targets[0].Item2);
-
-                map.Shoot(next_targets[0].Item1, next_targets[0].Item2);
-
-
-                // pokud trefim, pridat dalsi do next_targets
-                if (map.Look(next_targets[0].Item1, next_targets[0].Item2) == Tile.hit)
-                {
-                    next_targets.AddRange(TargetMode(map, next_targets[0].Item1, next_targets[0].Item2));
-                }
-                next_targets.RemoveAt(0);
-
-                if (next_targets.Count == 0)
-                {
-                    isTargetMode = false;
-                }
-
-
-                //if ((int)result > 2)
-                //{
-                //    next_targets.Clear();
-                //    isTargetMode = false;
-                //}
 
             }
         }
