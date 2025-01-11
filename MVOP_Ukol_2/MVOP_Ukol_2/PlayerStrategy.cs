@@ -18,12 +18,13 @@ namespace MVOP_Ukol_2
         public abstract void MakeAMove(Map map);
         public int y;
         public int x;
+        public int timesHit;
         protected static Random rng = new Random();
         protected (int y, int x)? lastHit = null;
         public bool isTargetMode;
         public List<(int, int)> next_targets = new List<(int, int)>();
         public bool hasShot;
-        public List<(int, int)> TargetMode(Map map, int lastX, int lastY)
+        public List<(int, int)> TargetModeCoordinates(Map map, int lastX, int lastY)
         {
             List<(int y, int x)> validDirections = new List<(int, int)>();
             List<(int y, int x)> directions = new List<(int, int)>
@@ -45,7 +46,7 @@ namespace MVOP_Ukol_2
             }
             return validDirections;
         }
-        public void TargetMode2(Map map)
+        public void TargetMode(Map map)
         {
             // list sousednich policek ktere neznam
 
@@ -53,19 +54,56 @@ namespace MVOP_Ukol_2
             //Console.WriteLine(next_targets[0].Item1 + " " + next_targets[0].Item2);
 
             Result result = map.Shoot(next_targets[0].Item1, next_targets[0].Item2);
-
-
-            // pokud trefim, pridat dalsi do next_targets
-            if (map.Look(next_targets[0].Item1, next_targets[0].Item2) == Tile.hit)
+            switch (Convert.ToInt32(result))
             {
-                next_targets.AddRange(TargetMode(map, next_targets[0].Item1, next_targets[0].Item2));
+                case 1:
+                    next_targets.AddRange(TargetModeCoordinates(map, next_targets[0].Item1, next_targets[0].Item2));
+                    timesHit++;
+                    break;
+                case 3:
+                    if (timesHit == 2)
+                    {
+                        
+                        isTargetMode = false;
+                        timesHit = 0;
+                        next_targets.Clear();
+                    }
+                    break;
+                case 4:
+                    if (timesHit == 3)
+                    {
+                        isTargetMode = false;
+                        timesHit = 0;
+                        next_targets.Clear();
+                    }
+                    break;
+                case 5:
+                    if (timesHit == 3)
+                    {
+                        isTargetMode = false;
+                        timesHit = 0;
+                        next_targets.Clear();
+                    }
+                    break;
+                case 6:
+                    if (timesHit == 4)
+                    {
+                        isTargetMode = false;
+                        timesHit = 0;
+                        next_targets.Clear();
+                    }
+                    break;
+                case 7:
+                    if (timesHit == 5)
+                    {
+                        isTargetMode = false;
+                        timesHit = 0;
+                        next_targets.Clear();
+                    }
+                    break;
             }
             next_targets.RemoveAt(0);
 
-            if (next_targets.Count == 0)
-            {
-                isTargetMode = false;
-            }
             Console.WriteLine(y + " " + x);
             Console.WriteLine(map);
             Console.WriteLine();
@@ -118,7 +156,8 @@ namespace MVOP_Ukol_2
             {
                 isTargetMode = true;
                 lastHit = (y, x);
-                next_targets = TargetMode(map, lastHit.Value.y, lastHit.Value.x);
+                next_targets = TargetModeCoordinates(map, lastHit.Value.y, lastHit.Value.x);
+                timesHit = 1;
             }
         }
 
@@ -274,7 +313,7 @@ namespace MVOP_Ukol_2
             // target mode
             if (isTargetMode && lastHit.HasValue && !hasShot)
             {
-                TargetMode2(map);
+                TargetMode(map);
 
             }
 
@@ -295,7 +334,7 @@ namespace MVOP_Ukol_2
             //Console.ReadKey();
         }
 
-        
+
 
     }
 
@@ -339,7 +378,7 @@ namespace MVOP_Ukol_2
 
             if (isTargetMode && lastHit.HasValue && !hasShot)
             {
-                TargetMode2(map);
+                TargetMode(map);
             }
         }
 
@@ -385,12 +424,12 @@ namespace MVOP_Ukol_2
 
             if (isTargetMode && lastHit.HasValue && !hasShot)
             {
-                TargetMode2(map);
+                TargetMode(map);
 
 
             }
         }
-        
+
 
 
 
